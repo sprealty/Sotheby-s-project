@@ -1,0 +1,40 @@
+public class WebhookHandler {
+     @future (callout=true)
+    public static void sendToClay(String leadId) {
+        // Query the lead data
+        Contact leadData = [SELECT Id, LastName, FirstName, Email,Phone FROM Contact WHERE Id = :leadId LIMIT 1];
+
+        // Prepare the HTTP request to send to Clay
+        HttpRequest req = new HttpRequest();
+        req.setEndpoint('https://api.clay.com/v3/sources/webhook/pull-in-data-from-a-webhook-188211f1-e9ea-465b-b6dc-1ced087f0343'); // Replace with your actual Clay URL
+        req.setMethod('POST');
+        req.setHeader('Content-Type', 'application/json');
+        req.setHeader('x-clay-webhook-auth','3fca796cd4e1f3b2a54c');
+        
+
+        // Create a JSON body
+        //String name=leadData.LastName+leadData.FirstName
+        Map<String, Object> payload = new Map<String, Object>();
+        payload.put('leadId', leadData.Id);
+        payload.put('LastName', leadData.LastName);
+        payload.put('FirstName', leadData.FirstName);
+        payload.put('Email', leadData.Email);
+        payload.put('Phone', leadData.Phone);
+
+        // Convert the Map to JSON string
+        String jsonPayload = JSON.serialize(payload);
+        System.debug('jsonPayload:-'+jsonPayload);
+        req.setBody(jsonPayload);
+
+        // Send the HTTP request
+        Http http = new Http();
+        HttpResponse res = http.send(req);
+
+        // Handle the response (optional)
+        if (res.getStatusCode() == 200) {
+            System.debug('Webhook successful: ' + res.getBody());
+        } else {
+            System.debug('Webhook failed: ' + res.getStatusCode() + ' ' + res.getBody());
+        }
+    }
+}
