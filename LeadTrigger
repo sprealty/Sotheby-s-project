@@ -1,0 +1,28 @@
+trigger LeadTrigger on Contact (after insert,before update) {
+    
+    if(Trigger.isInsert){
+            for (Contact lead : Trigger.new) {
+            // Ensure the lead has the necessary data to trigger the webhook
+            if (lead.LastName != null) {  // Adjust the condition as needed
+                // Call the method to send data to Clay
+                WebhookHandler.sendToClay(lead.Id);
+            }
+        }
+    }
+    if(Trigger.isUpdate){
+        for (Contact lead : Trigger.new) {
+            if(lead.Facebook_Link__c != null || lead.Profile_Picture__c != null || lead.Twitter_Link__c != null || lead.Linkedin_Link__c != null
+              || lead.gsir_job_title__c != null || lead.Company_Location__c != null || lead.Company_Domain_Name__c != null||
+              lead.gsir_employer__c != null || lead.Company_LinkedIn__c != null || lead.Company_Employer_Website__c !=null ||
+               lead.Education__c !=null || lead.Skills__c != null || lead.Birth_Year__c != null || lead.City__c != null ||
+              lead.Region_Hubspot__c != null || lead.Country_Hubspot__c != null || lead.Country_Code__c != null || lead.Npi_Data__c != null ||
+              lead.Recommended_Email__c != null || lead.Recommended_Personal_Email__c != null || lead.Current_Work_Email__c != null ||
+              lead.Current_Personal_Email__c != null || lead.Detailed_Email__c != null || lead.Detailed_Phone__c != null || lead.Career_History__c != null ||
+              lead.Estimated_Net_Worth__c != null || lead.Net_Worth_Reasoning__c != null){
+                  lead.Enriched_Information__c = true;
+                  
+              }
+        }
+    }
+  
+}
